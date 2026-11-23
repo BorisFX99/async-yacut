@@ -33,3 +33,6 @@ def create_app():
     app.register_blueprint(api_views.api_bp)
 
     return app
+
+
+app = create_app()

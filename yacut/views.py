@@ -55,7 +55,7 @@ def index_view():
         if custom_id:
             # Проверка на зарезервированный путь.
             if custom_id in RESERVED_IDS:
-                flash('Предложенный вариант короткой ссылки недопустим')
+                flash('Предложенный вариант короткой ссылки уже существует.')
                 return render_template('index.html', form=form)
 
             # Проверка на занятость.

@@ -20,10 +20,16 @@ def is_valid_custom_id(custom_id):
 
 @api_bp.route('/id/', methods=['POST'])
 def create_short_link():
-    if not request.is_json:
-        raise InvalidAPIUsage('Тело запроса должно быть json')
+    # Проверяем, что тело вообще есть (до парсинга!)
+    if not request.data:
+        raise InvalidAPIUsage('Отсутствует тело запроса')
 
-    data = request.get_json()
+    #  Проверяем, что это JSON
+    if not request.is_json:
+        raise InvalidAPIUsage('Отсутствует тело запроса')
+
+    # Парсим (silent=True — не выбрасывает исключение на битом JSON)
+    data = request.get_json(silent=True)
     if not data:
         raise InvalidAPIUsage('Отсутствует тело запроса')
 
