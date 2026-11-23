@@ -72,7 +72,11 @@ def index_view():
         db.session.commit()
 
         # Составляем ссылку из "url_map"
-        short_link = url_for('views.redirect_view', short_id=short_id, _external=True)
+        short_link = url_for(
+            'views.redirect_view',
+            short_id=short_id,
+            _external=True
+        )
 
     return render_template(
         'index.html',
@@ -88,7 +92,9 @@ async def files():
 
     if form.validate_on_submit():
         try:
-            files_data = await async_upload_files_to_yandex_disk(form.files.data)
+            files_data = await async_upload_files_to_yandex_disk(
+                form.files.data
+            )
         except Exception as error:
             flash(f'Ошибка при загрузке файлов: {error}')
             return render_template('files.html', form=form, files=None)
@@ -148,6 +154,7 @@ async def redirect_view(short_id):
         file_data,
         mimetype='application/octet-stream',
         headers={
-            'Content-Disposition': f"attachment; filename*=UTF-8''{safe_filename}"
+            'Content-Disposition':
+                f"attachment; filename*=UTF-8''{safe_filename}"  # noqa: E702
         }
     )

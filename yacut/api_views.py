@@ -41,9 +41,13 @@ def create_short_link():
 
     if custom_id:
         if not is_valid_custom_id(custom_id):
-            raise InvalidAPIUsage('Указано недопустимое имя для короткой ссылки')
+            raise InvalidAPIUsage(
+                'Указано недопустимое имя для короткой ссылки'
+            )
         if URLMap.query.filter_by(short=custom_id).first() is not None:
-            raise InvalidAPIUsage('Предложенный вариант короткой ссылки уже существует.')
+            raise InvalidAPIUsage(
+                'Предложенный вариант короткой ссылки уже существует.'
+            )
         short_id = custom_id
     else:
         short_id = get_unique_short_id()
@@ -54,7 +58,11 @@ def create_short_link():
 
     return jsonify({
         'url': url_map.original,
-        'short_link': url_for('views.redirect_view', short_id=url_map.short, _external=True),
+        'short_link': url_for(
+            'views.redirect_view',
+            short_id=url_map.short,
+            _external=True
+        ),
     }), 201
 
 

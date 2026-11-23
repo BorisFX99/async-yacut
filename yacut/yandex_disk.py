@@ -19,11 +19,12 @@ async def upload_file_to_disk(session, file):
     Загружает ОДИН файл на Яндекс.Диск.
     :params
         session: Передаем одну сессию
-        file: FileStorage из Flask (Werkzeug), у которого есть .filename и .read()
+        file: FileStorage из Flask (Werkzeug),
+              у которого есть .filename и .read()
     :return: путь к файлу на Диске (str), например 'app:/filename.txt'
     """
     filename = file.filename
-    path = f'app:/{filename}'
+    path = f'app:/{filename}'  # noqa: E231
 
     async with session.get(
         REQUEST_UPLOAD_URL,
