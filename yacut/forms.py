@@ -3,13 +3,19 @@ from flask_wtf.file import FileRequired, MultipleFileField
 from wtforms import StringField, SubmitField, URLField
 from wtforms.validators import DataRequired, Length, Optional, Regexp
 
+from yacut.constants import (
+    FORM_ORIGINAL_LINK_MIN_LEN,
+    FORM_ORIGINAL_LINK_MAX_LEN,
+    FORM_CUSTOM_ID_REGEX
+)
+
 
 class URLForm(FlaskForm):
     original_link = URLField(
         'Длинная ссылка',
         validators=[
             DataRequired(message='Обязательное поле'),
-            Length(1, 128)
+            Length(FORM_ORIGINAL_LINK_MIN_LEN, FORM_ORIGINAL_LINK_MAX_LEN)
         ],
     )
     custom_id = StringField(
@@ -21,7 +27,7 @@ class URLForm(FlaskForm):
                 message='Короткая ссылка не должна превышать 16 символов'
             ),
             Regexp(
-                r'^[a-zA-Z0-9]+$',
+                FORM_CUSTOM_ID_REGEX,
                 message=(
                     'Короткая ссылка может содержать'
                     'только латинские буквы и цифры'

@@ -1,8 +1,7 @@
-import re
-import string
-from random import choices
 import aiohttp
 from urllib.parse import unquote, quote
+
+from http import HTTPStatus
 
 from flask import (
     Blueprint,
@@ -20,26 +19,12 @@ from yacut.forms import FileUploadForm, URLForm
 from yacut.models import URLMap
 from yacut.yandex_disk import async_upload_files_to_yandex_disk
 
+from yacut.constants import (
+    RESERVED_IDS,
+    YANDEX_DOWNLOAD_PREFIX
+)
 
 views = Blueprint('views', __name__)
-
-SHORT_ID_LENGTH = 6
-# Создаём набор допустимых символов из которых генерить ссылку короткую'
-SHORT_ID_CHARS = string.ascii_letters + string.digits
-RESERVED_IDS = {'files'}
-SHORT_ID_RE = re.compile(r'^[a-zA-Z0-9]+$')
-
-# Префикс прямых ссылок на скачивание с Яндекс.Диска
-YANDEX_DOWNLOAD_PREFIX = 'https://downloader.disk.yandex.ru/'
-
-
-# генератор уникаьной ссылки
-def get_unique_short_id():
-    """Генерирует уникальный 6-символьный id: буквы + цифры."""
-    while True:
-        short_id = ''.join(choices(SHORT_ID_CHARS, k=SHORT_ID_LENGTH))
-        if URLMap.query.filter_by(short=short_id).first() is None:
-            return short_id
 
 
 # Регистрируем роуты
@@ -65,7 +50,7 @@ def index_view():
 
             short_id = custom_id
         else:
-            short_id = get_unique_short_id()
+            short_id = URLMap.get_unique_short_id()
 
         url_map = URLMap(original=original, short=short_id)
         db.session.add(url_map)
@@ -102,7 +87,7 @@ async def files():
         # Для каждого загруженного файла создаём короткую ссылку.
         result = []
         for item in files_data:
-            short_id = get_unique_short_id()
+            short_id = URLMap.get_unique_short_id()
             url_map = URLMap(original=item['link'], short=short_id)
             db.session.add(url_map)
             db.session.commit()
@@ -125,7 +110,7 @@ async def files():
 async def redirect_view(short_id):
     url_map = URLMap.query.filter_by(short=short_id).first()
     if url_map is None:
-        abort(404)
+        abort(HTTPStatus.NOT_FOUND)
 
     # Если это НЕ файл с Яндекса — обычный редирект
     if not url_map.original.startswith(YANDEX_DOWNLOAD_PREFIX):
@@ -133,8 +118,8 @@ async def redirect_view(short_id):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url_map.original) as resp:
-            if resp.status != 200:
-                abort(404)
+            if resp.status != HTTPStatus.OK:
+                abort(HTTPStatus.NOT_FOUND)
             file_data = await resp.read()
             content_disposition = resp.headers.get('Content-Disposition', '')
 

@@ -1,17 +1,13 @@
-import os
 import asyncio
 from urllib.parse import unquote
 
 import aiohttp
 
-
-API_HOST = 'https://cloud-api.yandex.net/'
-API_VERSION = 'v1'
-REQUEST_UPLOAD_URL = f'{API_HOST}{API_VERSION}/disk/resources/upload'
-DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources/download'
-
-DISK_TOKEN = os.getenv('DISK_TOKEN', '')
-AUTH_HEADERS = {'Authorization': f'OAuth {DISK_TOKEN}'}
+from yacut.config import (
+    AUTH_HEADERS,
+    REQUEST_UPLOAD_URL,
+    DOWNLOAD_LINK_URL,
+)
 
 
 async def upload_file_to_disk(session, file):
